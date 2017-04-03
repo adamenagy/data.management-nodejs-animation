@@ -23,6 +23,7 @@
             border: 0px;
             margin: 0px;
             font-family: Helvetica;
+            box-sizing: border-box;
         }
 
         #palette {
@@ -32,7 +33,11 @@
             min-height: 300px;
             position: absolute;
             box-sizing: border-box;
-            width: 225px;
+            width: 230px;
+
+            border-color: black;
+            border-width: 1px;
+            border-style: solid;
         }
 
         #paletteTop {
@@ -42,7 +47,9 @@
 
         #logo {
             position: relative;
-            background-color: #da3030;
+            background: url(img/Steelcase-logo.jpg);
+            background-size: 1000px 1000px;
+            background-repeat: repeat;
         }
 
         #logoImage {
@@ -56,7 +63,7 @@
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
-            border-style: solid;
+            border-top-style: solid;
         }
 
         #filesButton {
@@ -71,7 +78,7 @@
             width: 250px;
             left: 100%;
             top: 70px;
-            height: calc(100% - 70px);
+            height: calc(100% - 69px);
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
@@ -84,7 +91,7 @@
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
-            border-style: solid;
+            border-top-style: solid;
         }
 
         #storyboardsButton {
@@ -99,7 +106,7 @@
             width: 120px;
             left: 100%;
             top: 70px;
-            height: calc(100% - 70px);
+            height: calc(100% - 69px);
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
@@ -127,22 +134,32 @@
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
-            border-style: solid;
+            border-top-style: solid;
             height: calc(100% - 130px);
             width: 100%;
-            border-top-style: none;
+            background-color: rgba(255, 255, 255, 0);
+            transition: background-color 1s;
+        }
+
+        #properties:hover {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        #propertiesTable {
+            width: 100%;
         }
 
         .property {
+            box-sizing: content-box;
             padding: 5px;
         }
 
         tr:nth-child(2n) {
-            background-color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.6);
         }
 
         tr:nth-child(2n+1) {
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.4);
         }
 
         #paletteBottom {
@@ -152,14 +169,23 @@
             padding: 10px;
             border-color: black;
             border-width: 1px;
-            border-style: solid;
+            border-top-style: solid;
             overflow: auto;
             background-color: rgba(255, 255, 255, 0.5);
-            border-top-style: none;
+            transition: background-color 1s;
+        }
+
+        #paletteBottom:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        #storyboardMessageText {
+            padding: 0px;
         }
 
         #storyboardMessageImage {
             position: relative;
+            padding: 0px;
             height: 50px;
             display: block;
             margin: auto;
@@ -190,7 +216,7 @@
             </div>
 
             <div id="paletteBottom">
-                <div id="storyboardMessageTxt">My message</div>
+                <div id="storyboardMessageText">My message</div>
                 <br />
                 <img id="storyboardMessageImage" src="img/Steelcase-logo.jpg" />
             </div>

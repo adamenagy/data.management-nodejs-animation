@@ -328,7 +328,7 @@ function showProperties(dbId) {
     dbId = 1;
 
   MyVars.viewer.getProperties(dbId, function (event) {
-    var propertiesHtml = '<table>';
+    var propertiesHtml = '<table id="propertiesTable">';
     for (var id in event.properties) {
       var prop = event.properties[id];
       if (prop.hidden)
@@ -436,13 +436,15 @@ function onClickStoryboard(event) {
 
   MyVars.viewer.loadModel(path, {}, onModelLoaded);
 
-  $('#storyboardMessageTxt').html('My message for ' + event.currentTarget.textContent);
+  $('#storyboardMessageText').html(
+    'Take care when following the instructions in '
+    + event.currentTarget.textContent);
+
   $('#storyboardMessageImage').attr("src", imageUrl);
 
   // Hide the storyboardsList
   toggleStoryboardsList();
 }
-
 
 function onModelLoaded(model) {
   // Orbit, Pan, Zoom, Explode Model, Settings, Full-screen
