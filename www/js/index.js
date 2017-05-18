@@ -132,13 +132,13 @@ $(document).ready(function () {
     });
   }
 
-  $('#storyboardsButton').click(toggleStoryboardsList);
+  $('#animationButton').click(toggleAnimationList);
   $('#filesButton').click(toggleFilesTree);
   $('#camButton').click(toggleCamList);
 });
 
-function toggleStoryboardsList() {
-  $('#storyboardsList').toggle();
+function toggleAnimationList() {
+  $('#animationList').toggle();
 
   // Make sure the other is hidden
   $('#filesTree').hide();
@@ -149,7 +149,7 @@ function toggleFilesTree() {
   $('#filesTree').toggle();
 
   // Make sure the other is hidden
-  $('#storyboardsList').hide();
+  $('#animationList').hide();
   $('#camList').hide();
 }
 
@@ -157,7 +157,7 @@ function toggleCamList() {
   $('#camList').toggle();
 
   // Make sure the other is hidden
-  $('#storyboardsList').hide();
+  $('#animationList').hide();
   $('#filesTree').hide();
 }
 
@@ -471,8 +471,8 @@ function initializeViewer(urn, path, getToken) {
   } else {
     var viewerElement = document.getElementById('forgeViewer');
     var config = {
-      extensions: ['Autodesk.Fusion360.Animation', 'Autodesk.Viewing.MarkupsGui'],//, 'Autodesk.Viewing.WebVR'],
-      experimental: [ 'webVR_orbitModel' ]
+      extensions: ['Autodesk.Fusion360.Animation', 'Autodesk.CAM360']//, 'Autodesk.Viewing.MarkupsGui', 'Autodesk.Viewing.WebVR'],
+      //experimental: [ 'webVR_orbitModel' ]
     };
     MyVars.viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, config);
 
@@ -517,32 +517,32 @@ function getImageUrl(doc, storyboard) {
   return url;
 }
 
-function showSubModels(doc, mainPath, submodelRole, htmlBaseName) {
-  var animations = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+function showSubModels(doc, mainPath, subModelRole) {
+  var subFolders = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
     'type': 'folder',
-    'role': submodelRole
+    'role': subModelRole
   }, true);
 
-  if (animations.length < 1)
+  if (subFolders.length < 1)
     return;
 
-  var animation = animations[0];
+  var subFolder = subFolders[0];
 
   var namesHtml =
-    '<div class="' + htmlBaseName + 'ListItem" path="' + mainPath +
-    '">Main model<br /><img class="' + htmlBaseName + 'ListItemImage" src="' +
+    '<div class="' + subModelRole + 'ListItem" path="' + mainPath +
+    '">Main model<br /><img class="' + subModelRole + 'ListItemImage" src="' +
     getImageUrl(doc) + '" /></div>';
 
-  for (var id in animation.children) {
-    var storyboard = animation.children[id];
-    var path = doc.getViewablePath(storyboard);
-    var imageUrl = getImageUrl(doc, storyboard);
-    namesHtml += '<div class="' + htmlBaseName + 'ListItem" path="' + path + '">' + storyboard.name +
-      '<br /><img class="' + htmlBaseName + 'ListItemImage" src="' + imageUrl + '" /></div>';
+  for (var id in subFolder.children) {
+    var subModel = subFolder.children[id];
+    var path = doc.getViewablePath(subModel);
+    var imageUrl = getImageUrl(doc, subModel);
+    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + subModel.name +
+      '<br /><img class="' + subModelRole + 'ListItemImage" src="' + imageUrl + '" /></div>';
   }
 
-  $('#' + htmlBaseName + 'List').html(namesHtml);
-  $('.' + htmlBaseName + 'ListItem').click(onClickSubModel);
+  $('#' + subModelRole + 'List').html(namesHtml);
+  $('.' + subModelRole + 'ListItem').click(onClickSubModel);
 }
 
 function onClickSubModel(event) {
@@ -553,22 +553,25 @@ function onClickSubModel(event) {
 
   MyVars.viewer.loadModel(path, {}, onModelLoaded);
 
-  if (event.currentTarget.className === 'storyboardsListItem') {
+  if (event.currentTarget.className === 'animationListItem') {
     $('#storyboardMessageText').html(
       'Take care when following the instructions in '
       + event.currentTarget.textContent);
 
     $('#storyboardMessageImage').attr("src", imageUrl);
 
-    // Hide the storyboardsList
-    toggleStoryboardsList();
+    // Hide the animationList
+    toggleAnimationList();
   } else {
-    // Hide the storyboardsList
+    // Hide the camList
     toggleCamList();
   }
 }
 
 function onModelLoaded(model) {
+
+  // Comment out if you want to restrict available commands
+  return;
 
   // Restrict available toolbar buttons to
   // Orbit, Pan, Zoom, Explode Model, Settings, Full-screen
@@ -632,16 +635,9 @@ function loadDocument(viewer, documentId) {
 
       if (geometryItems.length > 0) {
         var path = doc.getViewablePath(geometryItems[0]);
-        var options = {
-          //extensions: ['Autodesk.Viewing.WebVR'],
-          //experimental: [ 'webVR_orbitModel' ]
-        };
-        viewer.loadModel(path, options, onModelLoaded);
-        //viewer.loadExtension('Autodesk.Viewing.WebVR', { experimental: [ 'webVR_orbitModel' ] });
-        //viewer.loadExtension('Autodesk.ADN.Viewing.Extension.VR', {});
-        //viewer.loadExtension('Autodesk.Viewing.MarkupsGUI');
-        showSubModels(doc, path, 'animation', 'storyboards');
-        showSubModels(doc, path, 'cam', 'cam');
+        viewer.loadModel(path, {}, onModelLoaded);
+        showSubModels(doc, path, 'animation');
+        showSubModels(doc, path, 'cam');
       }
     },
     // onError
