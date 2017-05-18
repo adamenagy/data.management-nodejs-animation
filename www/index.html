@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=no" />
     <title>Forge Viewer</title>
 
     <!--type="text/css">-->
@@ -12,11 +13,11 @@
     <!-- for the viewer -->
     <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/three.min.js?v=v2.14"></script>
     <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.js?v=v2.14"></script>
-    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.min.css?v=v2.14"/>
-    <link rel="stylesheet" href="/css/jstree.style.min.css"/>
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.min.css?v=v2.14" />
+    <link rel="stylesheet" href="/css/jstree.style.min.css" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
 
-    <link rel="stylesheet" href="/css/index.css"/>
+    <link rel="stylesheet" href="/css/index.css" />
     <style>
         body {
             padding: 0px;
@@ -24,6 +25,12 @@
             margin: 0px;
             font-family: Helvetica;
             box-sizing: border-box;
+        }
+
+        #forgeViewer {
+            height: 100%;
+            width: 100%;
+            min-height: 300px;
         }
 
         #palette {
@@ -47,13 +54,13 @@
 
         #logo {
             position: relative;
-            background: url(img/Steelcase-logo.jpg);
-            background-size: 1000px 1000px;
-            background-repeat: repeat;
+            background-color: white;
+            height: 50px;
+            padding-top: 10px;
         }
 
         #logoImage {
-            height: 70px;
+            height: 30px;
             display : block;
             margin : auto;
         }
@@ -77,8 +84,8 @@
             overflow-y: scroll;
             width: 250px;
             left: 100%;
-            top: 70px;
-            height: calc(100% - 69px);
+            top: 50px;
+            height: calc(100% - 49px);
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
@@ -105,8 +112,8 @@
             overflow-y: scroll;
             width: 120px;
             left: 100%;
-            top: 70px;
-            height: calc(100% - 69px);
+            top: 50px;
+            height: calc(100% - 49px);
             box-sizing: border-box;
             border-color: black;
             border-width: 1px;
@@ -128,6 +135,48 @@
             cursor: inherit;
         }
 
+        #cam {
+            height: 30px;
+            box-sizing: border-box;
+            border-color: black;
+            border-width: 1px;
+            border-top-style: solid;
+        }
+
+        #camButton {
+            height: 100%;
+            width: 100%
+        }
+
+        #camList {
+            display: none;
+            position: absolute;
+            overflow-y: scroll;
+            width: 120px;
+            left: 100%;
+            top: 50px;
+            height: calc(100% - 49px);
+            box-sizing: border-box;
+            border-color: black;
+            border-width: 1px;
+            border-style: solid;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .camListItem {
+            position: relative;
+            overflow: auto;
+            width: 100px;
+            box-sizing: content-box;
+            cursor: pointer;
+        }
+
+        .camListItemImage {
+            width: 100px;
+            height: 100px;
+            cursor: inherit;
+        }
+
         #properties {
             position: relative;
             overflow: auto;
@@ -135,7 +184,7 @@
             border-color: black;
             border-width: 1px;
             border-top-style: solid;
-            height: calc(100% - 130px);
+            height: calc(100% - 110px);
             width: 100%;
             background-color: rgba(255, 255, 255, 0);
             transition: background-color 1s;
@@ -199,7 +248,7 @@
 
             <div id="paletteTop">
                 <div id="logo">
-                    <img id="logoImage" src="img/Steelcase-logo.jpg" />
+                    <img id="logoImage" src="img/forge_logo.png" />
                 </div>
 
                 <div id="files">
@@ -212,13 +261,18 @@
                     <div id="storyboardsList"></div>
                 </div>
 
+                <div id="cam">
+                    <button id="camButton">CAM</button>
+                    <div id="camList"></div>
+                </div>
+
                 <div id="properties"></div>
             </div>
 
             <div id="paletteBottom">
                 <div id="storyboardMessageText">My message</div>
                 <br />
-                <img id="storyboardMessageImage" src="img/Steelcase-logo.jpg" />
+                <img id="storyboardMessageImage" src="img/forge_logo2.jpeg" />
             </div>
 
     </div>

@@ -13,26 +13,128 @@ function GetURLParameter(sParam) {
   }
 }
 
-$(document).ready(function () {
-  // Get the tokens
-  get3LegToken(function (token) {
+///////////////////////////////////////////////////////////////////////////////
+// Using A360 sharing
+///////////////////////////////////////////////////////////////////////////////
 
-    if (!token) {
-      signIn();
-    } else {
-      MyVars.token3Leg = token;
+var embedURLfromA360 = 'https://myhub.autodesk360.com/ue29c8b6b/shares/public/SH7f1edQT22b515c761efb9dc743a1144e43?mode=embed'; // ParametricChair
 
-      prepareFilesTree();
+var viewer;
 
-      MyVars.urn = GetURLParameter('urn');
-      if (MyVars.urn) {
-        initializeViewer(MyVars.urn);
+function getURN(urn, onURNCallback) {
+  $.get({
+    url: urn.replace('public', 'metadata').replace('mode=embed', ''),
+    dataType: 'json',
+    success: function (metadata) {
+      if (onURNCallback) {
+        onURNCallback(metadata.success.body.viewing.views.viewableUrn);
       }
     }
+  })
+}
+
+function getForgeToken(onTokenCallback) {
+  $.post({
+    url: embedURLfromA360.replace('public', 'sign').replace('mode=embed', 'oauth2=true'),
+    data: '{}',
+    success: function (oauth) {
+      if (onTokenCallback)
+        onTokenCallback(oauth.accessToken, oauth.validitySeconds);
+    }
   });
+}
+
+/**
+ * Autodesk.Viewing.Document.load() success callback.
+ * Proceeds with model initialization.
+ */
+function onDocumentLoadSuccess(doc) {
+
+  // A document contains references to 3D and 2D viewables.
+  var viewables = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+    'type': 'geometry'
+  }, true);
+  if (viewables.length === 0) {
+    console.error('Document contains no viewables.');
+    return;
+  }
+
+  // Choose any of the avialble viewables
+  var initialViewable = viewables[0];
+  var svfUrl = doc.getViewablePath(initialViewable);
+  var modelOptions = {
+    sharedPropertyDbPath: doc.getPropertyDbPath()
+  };
+
+  var viewerDiv = document.getElementById('forgeViewer');
+  MyVars.viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerDiv);
+  MyVars.viewer.start(svfUrl, modelOptions, onLoadModelSuccess, onLoadModelError);
+}
+
+/**
+ * Autodesk.Viewing.Document.load() failuire callback.
+ */
+function onDocumentLoadFailure(viewerErrorCode) {}
+
+/**
+ * viewer.loadModel() success callback.
+ * Invoked after the model's SVF has been initially loaded.
+ * It may trigger before any geometry has been downloaded and displayed on-screen.
+ */
+function onLoadModelSuccess(model) {}
+
+/**
+ * viewer.loadModel() failure callback.
+ * Invoked when there's an error fetching the SVF file.
+ */
+function onLoadModelError(viewerErrorCode) {}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Original code
+///////////////////////////////////////////////////////////////////////////////
+
+$(document).ready(function () {
+  MyVars.urn = GetURLParameter('urn');
+  if (MyVars.urn) {
+    if (MyVars.urn.indexOf('myhub.autodesk360.com') !== -1)  {
+      MyVars.urn = decodeURIComponent(MyVars.urn),
+      getURN(MyVars.urn, function (urn) {
+
+        initializeViewer(urn, undefined, getForgeToken);
+        /*
+        var options = {
+          env: 'AutodeskProduction',
+          getAccessToken: getForgeToken
+        };
+        var documentId = 'urn:' + urn;
+        Autodesk.Viewing.Initializer(options, function onInitialized() {
+          Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
+        });
+        */
+      });
+    }
+  } else {
+    // Get the tokens
+    get3LegToken(function (token) {
+
+      if (!token) {
+        signIn();
+      } else {
+        MyVars.token3Leg = token;
+
+        prepareFilesTree();
+
+        if (MyVars.urn) {
+          initializeViewer(MyVars.urn, undefined, get3LegToken);
+        }
+      }
+    });
+  }
 
   $('#storyboardsButton').click(toggleStoryboardsList);
   $('#filesButton').click(toggleFilesTree);
+  $('#camButton').click(toggleCamList);
 });
 
 function toggleStoryboardsList() {
@@ -40,6 +142,7 @@ function toggleStoryboardsList() {
 
   // Make sure the other is hidden
   $('#filesTree').hide();
+  $('#camList').hide();
 }
 
 function toggleFilesTree() {
@@ -47,6 +150,15 @@ function toggleFilesTree() {
 
   // Make sure the other is hidden
   $('#storyboardsList').hide();
+  $('#camList').hide();
+}
+
+function toggleCamList() {
+  $('#camList').toggle();
+
+  // Make sure the other is hidden
+  $('#storyboardsList').hide();
+  $('#filesTree').hide();
 }
 
 function signIn() {
@@ -282,7 +394,7 @@ function prepareFilesTree() {
             if (der.outputType === 'svf') {
 
               toggleFilesTree();
-              initializeViewer(MyVars.selectedUrn);
+              initializeViewer(MyVars.selectedUrn, undefined, get3LegToken);
             }
           }
         });
@@ -303,11 +415,11 @@ function prepareFilesTree() {
   });
 }
 
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Viewer
 // Based on Autodesk Viewer basic sample
 // https://developer.autodesk.com/api/viewerapi/
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 function clearViewer() {
   // Clear the viewer content
@@ -343,7 +455,7 @@ function showProperties(dbId) {
   })
 }
 
-function initializeViewer(urn, path) {
+function initializeViewer(urn, path, getToken) {
   clearViewer();
 
   console.log("Launching Autodesk Viewer for: " + urn);
@@ -351,7 +463,7 @@ function initializeViewer(urn, path) {
   var options = {
     document: 'urn:' + urn,
     env: 'AutodeskProduction',
-    getAccessToken: get3LegToken
+    getAccessToken: getToken
   };
 
   if (MyVars.viewer) {
@@ -359,9 +471,14 @@ function initializeViewer(urn, path) {
   } else {
     var viewerElement = document.getElementById('forgeViewer');
     var config = {
-      extensions: ['Autodesk.Fusion360.Animation']
+      extensions: ['Autodesk.Fusion360.Animation', 'Autodesk.Viewing.MarkupsGui'],//, 'Autodesk.Viewing.WebVR'],
+      experimental: [ 'webVR_orbitModel' ]
     };
     MyVars.viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, config);
+
+    window.launchFullscreen = function() {};
+    window.exitFullscreen = function() {};
+
     Autodesk.Viewing.Initializer(
       options,
       function () {
@@ -400,10 +517,10 @@ function getImageUrl(doc, storyboard) {
   return url;
 }
 
-function showStoryboards(doc, mainPath) {
+function showSubModels(doc, mainPath, submodelRole, htmlBaseName) {
   var animations = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
     'type': 'folder',
-    'role': 'animation'
+    'role': submodelRole
   }, true);
 
   if (animations.length < 1)
@@ -412,23 +529,23 @@ function showStoryboards(doc, mainPath) {
   var animation = animations[0];
 
   var namesHtml =
-    '<div class="storyboardsListItem" path="' + mainPath +
-    '">Main model<br /><img class="storyboardsListItemImage" src="' +
+    '<div class="' + htmlBaseName + 'ListItem" path="' + mainPath +
+    '">Main model<br /><img class="' + htmlBaseName + 'ListItemImage" src="' +
     getImageUrl(doc) + '" /></div>';
 
   for (var id in animation.children) {
     var storyboard = animation.children[id];
     var path = doc.getViewablePath(storyboard);
     var imageUrl = getImageUrl(doc, storyboard);
-    namesHtml += '<div class="storyboardsListItem" path="' + path + '">' + storyboard.name +
-      '<br /><img class="storyboardsListItemImage" src="' + imageUrl + '" /></div>';
+    namesHtml += '<div class="' + htmlBaseName + 'ListItem" path="' + path + '">' + storyboard.name +
+      '<br /><img class="' + htmlBaseName + 'ListItemImage" src="' + imageUrl + '" /></div>';
   }
 
-  $('#storyboardsList').html(namesHtml);
-  $('.storyboardsListItem').click(onClickStoryboard);
+  $('#' + htmlBaseName + 'List').html(namesHtml);
+  $('.' + htmlBaseName + 'ListItem').click(onClickSubModel);
 }
 
-function onClickStoryboard(event) {
+function onClickSubModel(event) {
   var path = event.currentTarget.attributes['path'].value;
   var imageUrl = event.currentTarget.children[1].src;
 
@@ -436,17 +553,24 @@ function onClickStoryboard(event) {
 
   MyVars.viewer.loadModel(path, {}, onModelLoaded);
 
-  $('#storyboardMessageText').html(
-    'Take care when following the instructions in '
-    + event.currentTarget.textContent);
+  if (event.currentTarget.className === 'storyboardsListItem') {
+    $('#storyboardMessageText').html(
+      'Take care when following the instructions in '
+      + event.currentTarget.textContent);
 
-  $('#storyboardMessageImage').attr("src", imageUrl);
+    $('#storyboardMessageImage').attr("src", imageUrl);
 
-  // Hide the storyboardsList
-  toggleStoryboardsList();
+    // Hide the storyboardsList
+    toggleStoryboardsList();
+  } else {
+    // Hide the storyboardsList
+    toggleCamList();
+  }
 }
 
 function onModelLoaded(model) {
+
+  // Restrict available toolbar buttons to
   // Orbit, Pan, Zoom, Explode Model, Settings, Full-screen
   var allowedButtons = [
     'toolbar-orbitTools',
@@ -455,7 +579,8 @@ function onModelLoaded(model) {
     'toolbar-explodeTool',
     'toolbar-settingsTool',
     'toolbar-fullscreenTool',
-    'toolbar-animationPlay'
+    'toolbar-animationPlay',
+    'toolbar-vrTool'
   ];
 
   var toolbar = MyVars.viewer.getToolbar();
@@ -507,9 +632,16 @@ function loadDocument(viewer, documentId) {
 
       if (geometryItems.length > 0) {
         var path = doc.getViewablePath(geometryItems[0]);
-        var options = {};
+        var options = {
+          //extensions: ['Autodesk.Viewing.WebVR'],
+          //experimental: [ 'webVR_orbitModel' ]
+        };
         viewer.loadModel(path, options, onModelLoaded);
-        showStoryboards(doc, path);
+        //viewer.loadExtension('Autodesk.Viewing.WebVR', { experimental: [ 'webVR_orbitModel' ] });
+        //viewer.loadExtension('Autodesk.ADN.Viewing.Extension.VR', {});
+        //viewer.loadExtension('Autodesk.Viewing.MarkupsGUI');
+        showSubModels(doc, path, 'animation', 'storyboards');
+        showSubModels(doc, path, 'cam', 'cam');
       }
     },
     // onError
