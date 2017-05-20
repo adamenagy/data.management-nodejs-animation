@@ -17,7 +17,7 @@ function GetURLParameter(sParam) {
 // Using A360 sharing
 ///////////////////////////////////////////////////////////////////////////////
 
-var embedURLfromA360 = 'https://myhub.autodesk360.com/ue29c8b6b/shares/public/SH7f1edQT22b515c761efb9dc743a1144e43?mode=embed'; // ParametricChair
+//var embedURLfromA360 = 'https://myhub.autodesk360.com/ue29c8b6b/shares/public/SH7f1edQT22b515c761efb9dc743a1144e43?mode=embed'; // ParametricChair
 
 var viewer;
 
@@ -35,7 +35,7 @@ function getURN(urn, onURNCallback) {
 
 function getForgeToken(onTokenCallback) {
   $.post({
-    url: embedURLfromA360.replace('public', 'sign').replace('mode=embed', 'oauth2=true'),
+    url: MyVars.urn.replace('public', 'sign').replace('mode=embed', 'oauth2=true'),
     data: '{}',
     success: function (oauth) {
       if (onTokenCallback)
@@ -545,6 +545,23 @@ function showSubModels(doc, mainPath, subModelRole) {
   $('.' + subModelRole + 'ListItem').click(onClickSubModel);
 }
 
+function showAllSubModels(doc, subModelRole) {
+  var viewableIDs = doc.myNumViews
+  var namesHtml = ''
+  for (var viewableID in viewableIDs) {
+    var geometries = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+      'viewableID': viewableID
+    }, true);
+    var path = doc.getViewablePath(geometries[0]);
+    var imageUrl = getImageUrl(doc, geometries[0]);
+    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + geometries[0].name +
+      '<br /><img class="' + subModelRole + 'ListItemImage" src="' + imageUrl + '" /></div>';
+  }
+
+  $('#' + subModelRole + 'List').html(namesHtml);
+  $('.' + subModelRole + 'ListItem').click(onClickSubModel);
+}
+
 function onClickSubModel(event) {
   var path = event.currentTarget.attributes['path'].value;
   var imageUrl = event.currentTarget.children[1].src;
@@ -561,10 +578,10 @@ function onClickSubModel(event) {
     $('#storyboardMessageImage').attr("src", imageUrl);
 
     // Hide the animationList
-    toggleAnimationList();
-  } else {
+    toggleAnimationList()
+  } else if (event.currentTarget.className === 'camListItem') {
     // Hide the camList
-    toggleCamList();
+    toggleCamList()
   }
 }
 
@@ -638,6 +655,7 @@ function loadDocument(viewer, documentId) {
         viewer.loadModel(path, {}, onModelLoaded);
         showSubModels(doc, path, 'animation');
         showSubModels(doc, path, 'cam');
+        showAllSubModels(doc, 'all');
       }
     },
     // onError
