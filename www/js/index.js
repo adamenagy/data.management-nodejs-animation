@@ -528,6 +528,7 @@ function showSubModels(doc, mainPath, subModelRole) {
     'role': subModelRole
   }, true);
 
+  $('#' + subModelRole + 'List').html('');
   if (subFolders.length < 1)
     return;
 
