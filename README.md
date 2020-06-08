@@ -12,11 +12,11 @@
 
 # Description
 
-This sample shows how you can access **Animations** and **CAM** content from documents - ini this case we are opening a **Fusion 360** document:
+This sample shows how you can access **Animations** and **CAM** content from documents - in this case we are opening a **Fusion&nbsp;360** document:
 
 ![](thumbnail.png)
 
-More information about it in the following article:
+More information about this can be found in the following article:
 [Show Animation and CAM content](https://forge.autodesk.com/blog/show-animation-and-cam-content)
 
 ## Live version
