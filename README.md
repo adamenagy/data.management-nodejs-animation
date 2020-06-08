@@ -3,21 +3,25 @@
 [![Node.js](https://img.shields.io/badge/Node.js-4.4.3-blue.svg)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-2.15.1-blue.svg)](https://www.npmjs.com/)
 ![Platforms](https://img.shields.io/badge/platform-windows%20%7C%20osx%20%7C%20linux-lightgray.svg)
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/:license-mit-blue.svg)](https://opensource.org/licenses/MIT)
 
 [![OAuth2](https://img.shields.io/badge/OAuth2-v1-green.svg)](http://developer.autodesk.com/)
 [![OSS](https://img.shields.io/badge/OSS-v2-green.svg)](http://developer.autodesk.com/)
 [![Model-Derivative](https://img.shields.io/badge/Model%20Derivative-v2-green.svg)](http://developer.autodesk.com/)
+[![Viewer](https://img.shields.io/badge/Viewer-v2-green.svg)](http://developer.autodesk.com/)
 
 # Description
 
-This sample shows how you can use the **Model Derivative API** and what you can do with it and also uses [Autodesk Viewer](https://developer.autodesk.com/en/docs/viewer/v2/overview/) for showing models. The front-end will look like:
+This sample shows how you can access **Animations** and **CAM** content from documents - ini this case we are opening a **Fusion 360** document:
 
-![](www/img/indexpage.png)
+![](thumbnail.png)
+
+More information about it in the following article:
+[Show Animation and CAM content](https://forge.autodesk.com/blog/show-animation-and-cam-content)
 
 ## Live version
 
-See it live at [https://derivatives.autodesk.io](https://derivatives.autodesk.io) 
+See it live at [https://animation-viewer.herokuapp.com/](https://animation-viewer.herokuapp.com/) 
 
 ## Setup
 
@@ -30,7 +34,7 @@ Install [NodeJS](https://nodejs.org).
 
 Clone this project or download it. It's recommended to install [GitHub desktop](https://desktop.github.com/). To clone it via command line, use the following (<b>Terminal</b> on MacOSX/Linux, <b>Git Shell</b> on Windows):
 
-    git clone https://github.com/autodesk-forge/model.derivative-nodejs-sample
+    git clone https://github.com/adamenagy/data.management-nodejs-animation
 
 To run it, install the required packages, set the enviroment variables with your client ID & secret and finally start it. Via command line, navigate to the folder where this repository was cloned and use the following:
 
@@ -56,7 +60,7 @@ Open the browser: [http://localhost:3000](http://localhost:3000).
 
 To deploy this application to Heroku, the <b>Callback URL</b> & <b>redirect_uri</b> must use your .herokuapp.com address. After clicking on the button below, at the Heroku Create New App page, set your Client ID & Secret and the correct callback URL.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Autodesk-Forge/model.derivative-nodejs-sample)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adamenagy/data.management-nodejs-animation)
 
 ## Packages used
 
