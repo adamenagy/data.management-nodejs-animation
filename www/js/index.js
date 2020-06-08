@@ -471,8 +471,7 @@ function initializeViewer(urn, path, getToken) {
   } else {
     var viewerElement = document.getElementById('forgeViewer');
     var config = {
-      extensions: ['Autodesk.ModelStructure', 'Autodesk.Fusion360.Animation', 'Autodesk.CAM360']//, 'Autodesk.Viewing.MarkupsGui', 'Autodesk.Viewing.WebVR'],
-      //experimental: [ 'webVR_orbitModel' ]
+      extensions: ['Autodesk.Fusion360.Animation', 'Autodesk.CAM360']
     };
     MyVars.viewer = new Autodesk.Viewing.GuiViewer3D(viewerElement, config);
 
