@@ -2,7 +2,6 @@
   "name": "derivative-service-node.js-viewer",
   "version": "1.0.0",
   "description": "A sample that shows how to use the Model Derivative API.",
-
   "dependencies": {
     "body-parser": "^1.15.1",
     "cookie-parser": "^1.4.3",
@@ -25,7 +24,7 @@
     "url": "git://github.com/adamenagy/model.derivative-nodejs-viewer"
   },
   "scripts": {
-    "start" : "NODE_ENV=production node start.js",
+    "start": "NODE_ENV=production node start.js",
     "dev": "node start.js",
     "nodemon": "nodemon start.js --ignore www/"
   },

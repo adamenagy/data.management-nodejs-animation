@@ -471,10 +471,10 @@ function initializeViewer(urn, path, getToken) {
   } else {
     var viewerElement = document.getElementById('forgeViewer');
     var config = {
-      extensions: ['Autodesk.Fusion360.Animation', 'Autodesk.CAM360']//, 'Autodesk.Viewing.MarkupsGui', 'Autodesk.Viewing.WebVR'],
+      extensions: ['Autodesk.ModelStructure', 'Autodesk.Fusion360.Animation', 'Autodesk.CAM360']//, 'Autodesk.Viewing.MarkupsGui', 'Autodesk.Viewing.WebVR'],
       //experimental: [ 'webVR_orbitModel' ]
     };
-    MyVars.viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, config);
+    MyVars.viewer = new Autodesk.Viewing.GuiViewer3D(viewerElement, config);
 
     window.launchFullscreen = function() {};
     window.exitFullscreen = function() {};
@@ -498,17 +498,23 @@ function initializeViewer(urn, path, getToken) {
 }
 
 function getImageUrl(doc, storyboard) {
-  // sample URL
+  // sample URL (old)
   // https://developer.api.autodesk.com/viewingservice/v1/thumbnails/
   // dXJuOmFkc2sud2lwcHJvZDpmcy5maWxlOnZmLlBvLWM0TzhnU05lVFFXR0RKNFlHN2c_dmVyc2lvbj0x
   // ?guid=%7B%22type%22%3A%22Animation%22%2C%22asset%22%3A%22e70f0521-0478-4734-bc2c-d3fd8f68b497%22%2C%22objectId%22%3A27%7D
   // &width=200&height=200
 
+  // sample URL (new)
+  // https://developer.api.autodesk.com/derivativeservice/v2/thumbnails/
+  // dXJuOmFkc2sud2lwcHJvZDpmcy5maWxlOnZmLnF0V0toZ2FIU09hOUV6US1INTVGS3c_dmVyc2lvbj0x
+  // ?guid={%22type%22:%22Animation%22,%22asset%22:%22d6d4243a-1325-42c9-9756-5e46ec8b6655%22,%22objectId%22:27}
+  // &width=200&height=200
+
   var urn = doc.myPath.replace('urn:', '');
-  var url = "https://developer.api.autodesk.com/viewingservice/v1/thumbnails/" + urn + "?";
+  var url = "https://developer.api.autodesk.com/derivativeservice/v2/thumbnails/" + urn + "?";
 
   if (storyboard) {
-    var guid = encodeURIComponent(storyboard.viewableID);
+    var guid = encodeURIComponent(storyboard.data.viewableID);
     url += "guid=" + guid + "&";
   }
 
@@ -518,7 +524,7 @@ function getImageUrl(doc, storyboard) {
 }
 
 function showSubModels(doc, mainPath, subModelRole) {
-  var subFolders = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+  var subFolders = doc.getRoot().search({
     'type': 'folder',
     'role': subModelRole
   }, true);
@@ -537,7 +543,7 @@ function showSubModels(doc, mainPath, subModelRole) {
     var subModel = subFolder.children[id];
     var path = doc.getViewablePath(subModel);
     var imageUrl = getImageUrl(doc, subModel);
-    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + subModel.name +
+    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + subModel.data.name +
       '<br /><img class="' + subModelRole + 'ListItemImage" src="' + imageUrl + '" /></div>';
   }
 
@@ -549,12 +555,12 @@ function showAllSubModels(doc, subModelRole) {
   var viewableIDs = doc.myNumViews
   var namesHtml = ''
   for (var viewableID in viewableIDs) {
-    var geometries = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+    var geometries = doc.getRoot().search({
       'viewableID': viewableID
     }, true);
     var path = doc.getViewablePath(geometries[0]);
     var imageUrl = getImageUrl(doc, geometries[0]);
-    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + geometries[0].name +
+    namesHtml += '<div class="' + subModelRole + 'ListItem" path="' + path + '">' + geometries[0].data.name +
       '<br /><img class="' + subModelRole + 'ListItemImage" src="' + imageUrl + '" /></div>';
   }
 
@@ -638,14 +644,14 @@ function loadDocument(viewer, documentId) {
     function (doc) {
       var geometryItems = [];
       // Try 3d geometry first
-      geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+      geometryItems = doc.getRoot().search({
         'type': 'geometry',
         'role': '3d'
       }, true);
 
       // If no 3d then try 2d
       if (geometryItems.length < 1)
-        geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+        geometryItems = doc.getRoot().search({
           'type': 'geometry',
           'role': '2d'
         }, true);
@@ -668,7 +674,3 @@ function loadDocument(viewer, documentId) {
 function showProgress() {
 
 }
-
-
-
-
