@@ -8,13 +8,13 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
+    "forge-apis": "^0.8.3",
     "formidable": "^1.0.17",
+    "fs": "*",
     "morgan": "^1.7.0",
     "oauth": "^0.9.14",
     "request": "^2.72.0",
-    "trim": "0.0.1",
-    "forge-apis": "*",
-    "fs": "*"
+    "trim": "0.0.1"
   },
   "engines": {
     "node": "*"
